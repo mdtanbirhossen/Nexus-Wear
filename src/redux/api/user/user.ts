@@ -25,6 +25,14 @@ export const customerApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: (result, error, id) => [{ type: "customer", id }],
     }),
+    getAllCustomers: builder.query({
+      query: (params?: { page?: number; limit?: number; status?: string }) => ({
+        url: `/customer`,
+        method: "GET",
+        params,
+      }),
+      providesTags: ["customer"],
+    }),
   }),
 });
 
@@ -32,4 +40,5 @@ export const {
   useLoginCustomerMutation,
   useRegisterCustomerMutation,
   useGetCustomerByIdQuery,
+  useGetAllCustomersQuery,
 } = customerApiSlice;

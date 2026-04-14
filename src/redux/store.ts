@@ -1,36 +1,44 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { apiSlice } from "./api/apiSlice";
 import authReducer from "./features/auth/authSlice";
-import { persistStore, persistReducer } from "redux-persist";
-import storage from "@/lib/getStorage"; // Make sure to import your storage
+import adminAuthReducer from "./features/adminAuthSlice";
+import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+import getStorage from "@/lib/getStorage";
 
-// Create persist config for auth
+// Customer auth — persisted under key "auth"
 const authPersistConfig = {
   key: "auth",
+  storage: getStorage,
+};
+
+// Admin auth — persisted under a separate key "adminAuth"
+const adminAuthPersistConfig = {
+  key: "adminAuth",
   storage,
 };
 
-// Create persisted auth reducer
 const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
+const persistedAdminAuthReducer = persistReducer(adminAuthPersistConfig, adminAuthReducer);
 
 export const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
-    auth: persistedAuthReducer, // Use the persisted reducer here
+    auth: persistedAuthReducer,
+    adminAuth: persistedAdminAuthReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // Disable serializable check for redux-persist
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
     }).concat(apiSlice.middleware),
   devTools: process.env.NODE_ENV !== "production",
 });
 
-const makeStore = () => store;
+export const persistor = persistStore(store);
 
-export type AppStore = ReturnType<typeof makeStore>;
-export type AppState = ReturnType<AppStore["getState"]>;
+export type AppStore = typeof store;
+export type AppState = ReturnType<typeof store.getState>;
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-
-// Create and export the persistor
-export const persistor = persistStore(store);

@@ -29,6 +29,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useAppDispatch } from "@/hooks/useRedux"
+import { logout } from "@/redux/features/adminAuthSlice"
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 
 export function NavUser({
   user,
@@ -40,7 +44,13 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
-
+  const dispatch = useAppDispatch()
+  const router = useRouter()
+  const handleLogout =  () => {
+    dispatch(logout())
+    router.push('/management/signin')
+    toast.success('admin logged out')
+  }
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -102,7 +112,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleLogout()}>
               <LogOut />
               Log out
             </DropdownMenuItem>
