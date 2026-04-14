@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "nexus-wear-dashboard.vercel.app",
       },
+      {
+        protocol: "https",
+        hostname: "i.ibb.co.com",
+      },
     ],
   },
 };
