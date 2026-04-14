@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "www.peakperformance.com",
       },
+      {
+        protocol: "https",
+        hostname: "n.nordstrommedia.com",
+      },
     ],
   },
 };
