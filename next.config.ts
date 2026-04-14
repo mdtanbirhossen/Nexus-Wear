@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "n.nordstrommedia.com",
       },
+      {
+        protocol: "https",
+        hostname: "ae01.alicdn.com",
+      },
     ],
   },
 };
