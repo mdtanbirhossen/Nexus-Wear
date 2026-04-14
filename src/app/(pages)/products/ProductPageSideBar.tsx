@@ -1,216 +1,222 @@
 "use client";
 import { useState } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useGetAllCategoriesQuery } from '@/redux/api/categoryApi/categoryApi';
+import { useGetAllColorsQuery } from '@/redux/api/colorApi/colorApi';
+import { ChevronDown, X, Filter, Check } from 'lucide-react';
+import { useGetAllsizesQuery } from '@/redux/api/sizeApi/sizeApi';
+import { useGetAllSubCategoriesQuery } from '@/redux/api/subCategoryApi/subCategoryApi';
+import { Category, Subcategory } from '@/types/categoryAndSubcategory';
+import { Color } from '@/types/color';
+import { Size } from '@/types/size';
 
 const ProductPageSideBar = () => {
-  const [openSection, setOpenSection] = useState<string | null>(null);
-  const [selectedFilters, setSelectedFilters] = useState({
-    materials: [] as string[],
-    sizes: [] as string[],
-    prices: [] as string[],
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  
+  const currentCategoryId = searchParams.get('categoryId');
+  const currentColorId = searchParams.get('colorId');
+  const currentSizeId = searchParams.get('sizeId');
+  const currentMinPrice = searchParams.get('minPrice');
+  const currentSubCategoryId = searchParams.get('subcategoryId');
+
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    categories: true,
+    subcategories: true,
+    colors: true,
+    sizes: true,
+    prices: true
   });
 
-  // Fake data
-  const filterOptions = {
-    materials: [
-      { id: 'fabric', name: 'Fabric', count: 124 },
-      { id: 'wood', name: 'Wood', count: 87 },
-      { id: 'steel', name: 'Steel', count: 64 },
-      { id: 'cotton', name: 'Cotton', count: 92 },
-      { id: 'garjon-board', name: 'Garjon Board', count: 43 },
-      { id: 'transparent-glass', name: 'Transparent Glass', count: 56 },
-      { id: 'textured-glass', name: 'Vertical Textured Glass', count: 38 },
-      { id: 'golden-metal', name: 'Golden color Metal', count: 29 },
-      { id: 'metal', name: 'Metal', count: 76 }
-    ],
-    sizes: [
-      { id: 'smaller-60', name: 'Smaller than 60°', count: 45 },
-      { id: '60-69', name: '60° - 69°', count: 78 },
-      { id: '70-79', name: '70° - 79°', count: 112 },
-      { id: '80-89', name: '80° - 89°', count: 95 },
-      { id: '90-99', name: '90° - 99°', count: 63 }
-    ],
-    prices: [
-      { id: 'below-1000', name: 'Below 1000TK', count: 156 },
-      { id: '1000-4999', name: '1000TK to 4999TK', count: 234 },
-      { id: '5000-9999', name: '5000TK to 9999TK', count: 187 },
-      { id: '10000-19999', name: '10000TK to 19999TK', count: 142 },
-      { id: '20000-29999', name: '20000TK to 29999 TK', count: 89 },
-      { id: '30000-above', name: '30000TK and Above', count: 67 }
-    ]
-  };
+  // Fetch real data
+  const { data: categoriesData } = useGetAllCategoriesQuery({ limit: 50 });
+  const { data: colorsData } = useGetAllColorsQuery({ limit: 50 });
+  const { data: sizesData } = useGetAllsizesQuery({ limit: 50 });
+  const { data: subcategoriesData } = useGetAllSubCategoriesQuery(
+    { categoryId: Number(currentCategoryId), limit: 50 },
+    { skip: !currentCategoryId }
+  );
+
+  const categories = categoriesData?.data || [];
+  const colors = colorsData?.data || [];
+  const sizes = sizesData?.data || [];
+  const subcategories = subcategoriesData?.data || [];
 
   const toggleSection = (section: string) => {
-    setOpenSection(openSection === section ? null : section);
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const handleFilterChange = (category: keyof typeof selectedFilters, value: string) => {
-    setSelectedFilters(prev => {
-      const currentFilters = [...prev[category]];
-      const index = currentFilters.indexOf(value);
-      
-      if (index > -1) {
-        currentFilters.splice(index, 1);
-      } else {
-        currentFilters.push(value);
-      }
-      
-      return {
-        ...prev,
-        [category]: currentFilters
-      };
-    });
+  const updateFilter = (key: string, value: string | null) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    if (!value) {
+      current.delete(key);
+    } else {
+      current.set(key, value);
+    }
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+    router.push(`${pathname}${query}`);
   };
 
   const clearAllFilters = () => {
-    setSelectedFilters({
-      materials: [],
-      sizes: [],
-      prices: []
-    });
+    router.push(pathname);
   };
 
+  const priceRanges = [
+    { label: 'Under 1000', min: 0, max: 1000 },
+    { label: '1000 - 5000', min: 1000, max: 5000 },
+    { label: '5000 - 10000', min: 5000, max: 10000 },
+    { label: '10000+', min: 10000, max: 1000000 },
+  ];
+
+
   return (
-    <div className="w-64 bg-white p-4 h-screen overflow-y-auto sticky top-0 border-r text-black">
-      <div className="flex justify-between items-center mb-4 border-b pb-2">
-        <h2 className="text-xl font-bold">Catalogue</h2>
+    <div className="w-full bg-white p-6 border rounded-lg shadow-sm sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar">
+      <div className="flex justify-between items-center mb-6 border-b pb-4">
+        <h2 className="text-lg font-bold flex items-center gap-2 text-primary uppercase tracking-tight">
+          <Filter className="w-4 h-4 text-secondary" />
+          Catalogue
+        </h2>
         <button 
           onClick={clearAllFilters}
-          className="text-black text-sm font-medium hover:text-gray-700"
+          className="text-xs font-bold text-gray-400 hover:text-secondary uppercase transition-colors"
         >
-          Clear all
+          Reset
         </button>
       </div>
+
+      {/* Search Input */}
+      <div className="mb-6 relative">
+          <input 
+            type="text"
+            placeholder="Search items..."
+            defaultValue={searchParams.get('search') || ''}
+            onChange={(e) => {
+               const val = e.target.value;
+               const timeout = setTimeout(() => {
+                  updateFilter('search', val || null);
+               }, 500);
+               return () => clearTimeout(timeout);
+            }}
+            className="w-full bg-gray-50 border border-gray-100 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+          />
+      </div>
       
-      {/* Materials Section */}
-      <div className="mb-4">
-        <div 
-          className="flex justify-between items-center cursor-pointer"
-          onClick={() => toggleSection('materials')}
-        >
-          <h3 className="text-md font-semibold">Materials</h3>
-          <svg 
-            className={`w-4 h-4 transform transition-transform ${openSection === 'materials' ? 'rotate-180' : ''}`} 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24" 
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+      {/* Categories */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center cursor-pointer group" onClick={() => toggleSection('categories')}>
+          <h3 className="text-xs font-black uppercase tracking-widest text-primary group-hover:text-secondary transition-colors">Categories</h3>
+          <ChevronDown className={`w-4 h-4 transition-transform ${openSections.categories ? 'rotate-180' : ''}`} />
         </div>
-        
-        <div className={`overflow-hidden transition-all duration-300 ${openSection === 'materials' ? 'max-h-96' : 'max-h-0'}`}>
-          <div className="pt-2 space-y-1">
-            {filterOptions.materials.map((material) => (
-              <div key={material.id} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input 
-                    type="checkbox" 
-                    id={material.id}
-                    checked={selectedFilters.materials.includes(material.name)}
-                    onChange={() => handleFilterChange('materials', material.name)}
-                    className="h-3 w-3 text-black rounded focus:ring-black"
-                  />
-                  <label htmlFor={material.id} className="ml-2 text-sm cursor-pointer">
-                    {material.name}
-                  </label>
-                </div>
-                <span className="text-xs text-gray-500">({material.count})</span>
+        {openSections.categories && (
+          <div className="pt-3 space-y-2">
+            {categories.map((cat: Category) => (
+              <div 
+                key={cat.id} 
+                onClick={() => updateFilter('categoryId', cat.id.toString() === currentCategoryId ? null : cat.id.toString())}
+                className={`text-sm cursor-pointer flex items-center gap-2 hover:translate-x-1 transition-transform ${currentCategoryId === cat.id.toString() ? 'text-secondary font-bold' : 'text-gray-600'}`}
+              >
+                 <div className={`w-1.5 h-1.5 rounded-full ${currentCategoryId === cat.id.toString() ? 'bg-secondary' : 'bg-gray-200'}`} />
+                 {cat.name}
               </div>
             ))}
           </div>
-        </div>
+        )}
       </div>
-      
-      <div className="border-t border-gray-300 my-3"></div>
-      
-      {/* Sizes Section */}
-      <div className="mb-4">
-        <div 
-          className="flex justify-between items-center cursor-pointer"
-          onClick={() => toggleSection('sizes')}
-        >
-          <h3 className="text-md font-semibold">Sizes</h3>
-          <svg 
-            className={`w-4 h-4 transform transition-transform ${openSection === 'sizes' ? 'rotate-180' : ''}`} 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24" 
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
-        
-        <div className={`overflow-hidden transition-all duration-300 ${openSection === 'sizes' ? 'max-h-96' : 'max-h-0'}`}>
-          <div className="pt-2 space-y-1">
-            {filterOptions.sizes.map((size) => (
-              <div key={size.id} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input 
-                    type="checkbox" 
-                    id={size.id}
-                    checked={selectedFilters.sizes.includes(size.name)}
-                    onChange={() => handleFilterChange('sizes', size.name)}
-                    className="h-3 w-3 text-black rounded focus:ring-black"
-                  />
-                  <label htmlFor={size.id} className="ml-2 text-sm cursor-pointer">
-                    {size.name}
-                  </label>
+
+      {/* Subcategories (Dynamic) */}
+      {currentCategoryId && subcategories.length > 0 && (
+        <div className="mb-6 animate-in slide-in-from-left duration-300">
+            <div className="flex justify-between items-center cursor-pointer group" onClick={() => toggleSection('subcategories')}>
+            <h3 className="text-xs font-black uppercase tracking-widest text-primary group-hover:text-secondary transition-colors">Collections</h3>
+            <ChevronDown className={`w-4 h-4 transition-transform ${openSections.subcategories ? 'rotate-180' : ''}`} />
+            </div>
+            {openSections.subcategories && (
+            <div className="pt-3 space-y-2">
+                {subcategories.map((sub: Subcategory) => (
+                <div 
+                    key={sub.id} 
+                    onClick={() => updateFilter('subcategoryId', sub.id.toString() === currentSubCategoryId ? null : sub.id.toString())}
+                    className={`text-sm cursor-pointer flex items-center gap-2 hover:translate-x-1 transition-transform ${currentSubCategoryId === sub.id.toString() ? 'text-secondary font-bold' : 'text-gray-500'}`}
+                >
+                    <div className={`w-3 h-3 border rounded-sm flex items-center justify-center transition-colors ${currentSubCategoryId === sub.id.toString() ? 'bg-secondary border-secondary' : 'bg-white border-gray-200 group-hover:border-secondary'}`}>
+                        {currentSubCategoryId === sub.id.toString() && <Check className="w-2.5 h-2.5 text-secondary-foreground" />}
+                    </div>
+                    {sub.name}
                 </div>
-                <span className="text-xs text-gray-500">({size.count})</span>
+                ))}
+            </div>
+            )}
+        </div>
+      )}
+
+      {/* Colors */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center cursor-pointer group" onClick={() => toggleSection('colors')}>
+          <h3 className="text-xs font-black uppercase tracking-widest text-primary group-hover:text-secondary transition-colors">Colors</h3>
+          <ChevronDown className={`w-4 h-4 transition-transform ${openSections.colors ? 'rotate-180' : ''}`} />
+        </div>
+        {openSections.colors && (
+          <div className="pt-3 flex flex-wrap gap-2">
+            {colors.map((color: Color) => (
+              <button
+                key={color.id}
+                onClick={() => updateFilter('colorId', color.id.toString() === currentColorId ? null : color.id.toString())}
+                className={`px-3 py-1 text-[10px] font-bold uppercase tracking-tighter rounded-full border transition-all ${currentColorId === color.id.toString() ? 'bg-primary text-white border-primary shadow-md' : 'bg-white text-gray-600 border-gray-100 hover:border-secondary'}`}
+              >
+                {color.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Sizes */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center cursor-pointer group" onClick={() => toggleSection('sizes')}>
+          <h3 className="text-xs font-black uppercase tracking-widest text-primary group-hover:text-secondary transition-colors">Sizes</h3>
+          <ChevronDown className={`w-4 h-4 transition-transform ${openSections.sizes ? 'rotate-180' : ''}`} />
+        </div>
+        {openSections.sizes && (
+          <div className="pt-3 flex flex-wrap gap-2">
+            {sizes.map((size: Size) => (
+              <button
+                key={size.id}
+                onClick={() => updateFilter('sizeId', size.id.toString() === currentSizeId ? null : size.id.toString())}
+                className={`w-10 h-10 flex items-center justify-center text-xs font-bold uppercase border transition-all ${currentSizeId === size.id.toString() ? 'bg-secondary text-secondary-foreground border-secondary shadow-lg' : 'bg-white text-gray-400 border-gray-100 hover:border-primary hover:text-primary'}`}
+              >
+                {size.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Price */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center cursor-pointer group" onClick={() => toggleSection('prices')}>
+          <h3 className="text-xs font-black uppercase tracking-widest text-primary group-hover:text-secondary transition-colors">Price Range</h3>
+          <ChevronDown className={`w-4 h-4 transition-transform ${openSections.prices ? 'rotate-180' : ''}`} />
+        </div>
+        {openSections.prices && (
+          <div className="pt-3 space-y-2">
+            {priceRanges.map((range) => (
+              <div 
+                key={range.label}
+                onClick={() => {
+                  updateFilter('minPrice', currentMinPrice === range.min.toString() ? null : range.min.toString());
+                  updateFilter('maxPrice', currentMinPrice === range.min.toString() ? null : range.max.toString());
+                }}
+                className={`text-sm cursor-pointer hover:text-primary transition-colors flex justify-between items-center ${currentMinPrice === range.min.toString() ? 'text-primary font-bold' : 'text-gray-500'}`}
+              >
+                <span>{range.label}</span>
+                {currentMinPrice === range.min.toString() && <X className="w-3 h-3 text-secondary" />}
               </div>
             ))}
           </div>
-        </div>
+        )}
       </div>
-      
-      <div className="border-t border-gray-300 my-3"></div>
-      
-      {/* Price Range Section */}
-      <div className="mb-4">
-        <div 
-          className="flex justify-between items-center cursor-pointer"
-          onClick={() => toggleSection('prices')}
-        >
-          <h3 className="text-md font-semibold">Price Range</h3>
-          <svg 
-            className={`w-4 h-4 transform transition-transform ${openSection === 'prices' ? 'rotate-180' : ''}`} 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24" 
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
-        
-        <div className={`overflow-hidden transition-all duration-300 ${openSection === 'prices' ? 'max-h-96' : 'max-h-0'}`}>
-          <div className="pt-2 space-y-1">
-            {filterOptions.prices.map((price) => (
-              <div key={price.id} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input 
-                    type="checkbox" 
-                    id={price.id}
-                    checked={selectedFilters.prices.includes(price.name)}
-                    onChange={() => handleFilterChange('prices', price.name)}
-                    className="h-3 w-3 text-black rounded focus:ring-black"
-                  />
-                  <label htmlFor={price.id} className="ml-2 text-sm cursor-pointer">
-                    {price.name}
-                  </label>
-                </div>
-                <span className="text-xs text-gray-500">({price.count})</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      
-      <div className="border-t border-gray-300 my-3"></div>
-      
-      {/* Copy Filter Button */}
-      <button className="w-full bg-black text-white py-1.5 px-4 rounded text-sm font-medium hover:bg-gray-800 transition-colors">
-        Copy Filter
-      </button>
     </div>
   );
 };
