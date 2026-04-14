@@ -48,6 +48,11 @@ export function LoginForm({
       const result = await loginCustomer({ email, password }).unwrap();
       console.log("Login Response:", result);
       
+      // Set userToken cookie for middleware (expires in 7 days)
+      if (result.accessToken) {
+        document.cookie = `userToken=${result.accessToken}; path=/; max-age=${7 * 24 * 60 * 60};`;
+      }
+
       // Dispatch the credentials to Redux store using your auth slice
       dispatch(setAuth({
         token: result.accessToken,

@@ -28,10 +28,11 @@ function For_Sale_Card({
   return (
     <Card className="w-full pt-0 overflow-hidden rounded-lg border-0 bg-white shadow-md transition-all hover:shadow-lg">
       <div className="relative h-56 w-full">
-        <img
-          src={imageUrl}
-          alt={title}
-          className="mx-auto h-full object-cover"
+        <Image
+          src={imageUrl || "/profileImg.jpg"}
+          alt={title || "Product Image"}
+          fill
+          className="object-cover"
         />
         <Badge className="absolute left-2 top-3 bg-red-500 px-2 py-1 text-xs font-bold">
           {badgeText}

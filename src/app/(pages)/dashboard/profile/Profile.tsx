@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
 import { Pencil, Save, X, Camera } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -167,10 +167,11 @@ export default function Profile() {
             <Card>
               <CardHeader className="items-center">
                 <div className="relative w-full h-48 bg-muted border-4 rounded-2xl border-muted overflow-hidden">
-                  <img
+                  <Image
                     src={customer?.image || "/default-avatar.png"}
-                    alt={customer?.name}
-                    className="w-full h-full object-cover"
+                    alt={customer?.name || "Customer Image"}
+                    fill
+                    className="object-cover"
                   />
                   <Button
                     size="icon"

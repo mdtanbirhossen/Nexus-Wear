@@ -15,7 +15,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 
 export function Today_For_You_Tab() {

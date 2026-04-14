@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -8,6 +10,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 const bannerItems = [
   {
@@ -118,9 +121,11 @@ export function Slider() {
                   {/* Image with subtle overlay */}
                   <div className="w-full lg:w-1/2 md:min-h-[400px] lg:h-full py-2 md:py-8 lg:pt-14 relative overflow-hidden order-1 lg:order-2">
                     <div className="absolute h-[400px] inset-0 bg-gradient-to-l from-white/20 to-transparent z-10  lg:block"></div>
-                    <img
+                    <Image
                       src={item.imageUrl}
                       alt={item.title}
+                      width={600}
+                      height={400}
                       className="w-full h-[400px] object-contain object-center transition-transform duration-700 group-hover:scale-105"
                     />
 

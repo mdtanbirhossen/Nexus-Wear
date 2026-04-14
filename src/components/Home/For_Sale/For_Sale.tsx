@@ -5,94 +5,6 @@ import For_Sale_Card from "./For_Sale_Card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function FlashSale() {
-    const [timeLeft, setTimeLeft] = useState({
-        hours: 8,
-        minutes: 17,
-        seconds: 56
-    });
-
-    const sliderRef = useRef<HTMLDivElement>(null);
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [maxSlides, setMaxSlides] = useState(0);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setTimeLeft(prevTime => {
-                const { hours, minutes, seconds } = prevTime;
-
-                let newSeconds = seconds - 1;
-                let newMinutes = minutes;
-                let newHours = hours;
-
-                if (newSeconds < 0) {
-                    newSeconds = 59;
-                    newMinutes = minutes - 1;
-
-                    if (newMinutes < 0) {
-                        newMinutes = 59;
-                        newHours = hours - 1;
-
-                        if (newHours < 0) {
-                            clearInterval(timer);
-                            return { hours: 0, minutes: 0, seconds: 0 };
-                        }
-                    }
-                }
-
-                return { hours: newHours, minutes: newMinutes, seconds: newSeconds };
-            });
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, []);
-
-    // Calculate max slides when component mounts
-    useEffect(() => {
-        if (sliderRef.current) {
-            const containerWidth = sliderRef.current.offsetWidth;
-            const cardWidth = 256; // w-64 = 16rem = 256px
-            const visibleCards = Math.floor(containerWidth / cardWidth);
-            setMaxSlides(products.length - visibleCards);
-        }
-    }, []);
-
-    const formatTime = (time: number) => {
-        return time.toString().padStart(2, '0');
-    };
-
-    const scrollLeft = () => {
-        if (sliderRef.current) {
-            sliderRef.current.scrollBy({ left: -256, behavior: 'smooth' });
-            setCurrentSlide(prev => Math.max(0, prev - 1));
-        }
-    };
-
-    const scrollRight = () => {
-        if (sliderRef.current) {
-            sliderRef.current.scrollBy({ left: 256, behavior: 'smooth' });
-            setCurrentSlide(prev => Math.min(maxSlides, prev + 1));
-        }
-    };
-
-    // Update current slide when scrolling
-    const handleScroll = useCallback(() => {
-        if (sliderRef.current) {
-            const scrollPosition = sliderRef.current.scrollLeft;
-            const cardWidth = 256; // w-64 = 16rem = 256px
-            const newSlide = Math.round(scrollPosition / cardWidth);
-            setCurrentSlide(newSlide);
-        }
-    }, []);
-
-    // Add scroll event listener
-    useEffect(() => {
-        const slider = sliderRef.current;
-        if (slider) {
-            slider.addEventListener('scroll', handleScroll);
-            return () => slider.removeEventListener('scroll', handleScroll);
-        }
-    }, [handleScroll]);
-
     const products = [
         {
             title: "EliteShield Performance",
@@ -167,6 +79,94 @@ export default function FlashSale() {
             imageUrl: "https://m.media-amazon.com/images/I/71N1hjwzuWL._UY900_.jpg"
         }
     ];
+
+    const [timeLeft, setTimeLeft] = useState({
+        hours: 8,
+        minutes: 17,
+        seconds: 56
+    });
+
+    const sliderRef = useRef<HTMLDivElement>(null);
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [maxSlides, setMaxSlides] = useState(0);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setTimeLeft(prevTime => {
+                const { hours, minutes, seconds } = prevTime;
+
+                let newSeconds = seconds - 1;
+                let newMinutes = minutes;
+                let newHours = hours;
+
+                if (newSeconds < 0) {
+                    newSeconds = 59;
+                    newMinutes = minutes - 1;
+
+                    if (newMinutes < 0) {
+                        newMinutes = 59;
+                        newHours = hours - 1;
+
+                        if (newHours < 0) {
+                            clearInterval(timer);
+                            return { hours: 0, minutes: 0, seconds: 0 };
+                        }
+                    }
+                }
+
+                return { hours: newHours, minutes: newMinutes, seconds: newSeconds };
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, []);
+
+    // Calculate max slides when component mounts
+    useEffect(() => {
+        if (sliderRef.current) {
+            const containerWidth = sliderRef.current.offsetWidth;
+            const cardWidth = 256; // w-64 = 16rem = 256px
+            const visibleCards = Math.floor(containerWidth / cardWidth);
+            setMaxSlides(products.length - visibleCards);
+        }
+    }, [products.length]);
+
+    const formatTime = (time: number) => {
+        return time.toString().padStart(2, '0');
+    };
+
+    const scrollLeft = () => {
+        if (sliderRef.current) {
+            sliderRef.current.scrollBy({ left: -256, behavior: 'smooth' });
+            setCurrentSlide(prev => Math.max(0, prev - 1));
+        }
+    };
+
+    const scrollRight = () => {
+        if (sliderRef.current) {
+            sliderRef.current.scrollBy({ left: 256, behavior: 'smooth' });
+            setCurrentSlide(prev => Math.min(maxSlides, prev + 1));
+        }
+    };
+
+    // Update current slide when scrolling
+    const handleScroll = useCallback(() => {
+        if (sliderRef.current) {
+            const scrollPosition = sliderRef.current.scrollLeft;
+            const cardWidth = 256; // w-64 = 16rem = 256px
+            const newSlide = Math.round(scrollPosition / cardWidth);
+            setCurrentSlide(newSlide);
+        }
+    }, []);
+
+    // Add scroll event listener
+    useEffect(() => {
+        const slider = sliderRef.current;
+        if (slider) {
+            slider.addEventListener('scroll', handleScroll);
+            return () => slider.removeEventListener('scroll', handleScroll);
+        }
+    }, [handleScroll]);
 
     return (
         <div className="bg-[#F9F9F9] rounded-xl px-5 max-w-7xl mx-auto py-10">

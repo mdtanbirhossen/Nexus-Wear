@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
     return (
@@ -8,10 +9,12 @@ export function Footer() {
                 {/* Company name and tagline */}
                 <div className="mb-8 text-center flex flex-col items-center">
                     <Link href={'/'}>
-                        <img 
+                        <Image 
                             src="https://nexus-wear-dashboard.vercel.app/mainLogo.png" 
                             alt="Logo" 
-                            className="min-w-20 h-16 mb-4" 
+                            width={80} 
+                            height={64}
+                            className="w-20 h-auto mb-4" 
                         />
                     </Link>
                     <div>

@@ -1,7 +1,6 @@
-import { GalleryVerticalEnd } from "lucide-react"
-
 import { LoginForm } from "@/app/(pages)/login/login-form"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function LoginPage() {
   return (
@@ -9,7 +8,13 @@ export default function LoginPage() {
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <Link href="/" className="font-bold flex items-center gap-2">
-              <img src="https://nexus-wear-dashboard.vercel.app/mainLogo.png" alt="Logo" className="w-16" />
+              <Image 
+                src="https://nexus-wear-dashboard.vercel.app/mainLogo.png" 
+                alt="Logo" 
+                width={64} 
+                height={64}
+                className="w-16 h-auto" 
+              />
             NEXUS WEAR
           </Link>
         </div>
@@ -23,7 +28,13 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-[url('https://nexus-wear-dashboard.vercel.app/loginBg1.jpg')] bg-cover" />
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
         <div className="relative z-10 flex flex-col items-center gap-4 text-white">
-          <img src="https://nexus-wear-dashboard.vercel.app/mainLogo.png" alt="Logo" className="w-40" />
+          <Image 
+            src="https://nexus-wear-dashboard.vercel.app/mainLogo.png" 
+            alt="Logo" 
+            width={160} 
+            height={160}
+            className="w-40 h-auto" 
+          />
           <h1 className="text-6xl font-extrabold text-black">NEXUS WEAR</h1>
         </div>
       </div>

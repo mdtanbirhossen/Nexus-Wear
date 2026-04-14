@@ -7,16 +7,16 @@ import Nav_Search from '../Nav_Search'
 import useAuthState from '@/hooks/useAuthState'
 import { IoMenuOutline } from "react-icons/io5";
 import { usePathname } from 'next/navigation'
+import Image from 'next/image'
 import {
     Select,
     SelectContent,
     SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
-    SelectValue,
 } from "@/components/ui/select"
 import { Nav_Dropdown } from './Nav_Dropdown'
+import NotificationBell from '@/components/shared/NotificationBell'
 
 const categories = [
     "Mens",
@@ -35,7 +35,13 @@ export default function Nav_1() {
         <div className="flex justify-between items-center ">
             <div className='flex gap-2'>
                 <Link href={'/'}>
-                    <img src="https://nexus-wear-dashboard.vercel.app/mainLogo.png" alt="Logo" className="min-w-20 h-9" />
+                    <Image 
+                        src="https://nexus-wear-dashboard.vercel.app/mainLogo.png" 
+                        alt="Logo" 
+                        width={80} 
+                        height={36}
+                        className="w-20 h-auto" 
+                    />
                 </Link>
                 {
                     showMenu ? <Select>
@@ -55,10 +61,13 @@ export default function Nav_1() {
                 <Nav_Search></Nav_Search>
             </div>
 
-            <div className="flex gap-1">
-                <Button><MdLocalGroceryStore /></Button>
+            <div className="flex gap-1 items-center">
+                <Button variant={"ghost"} size="icon" className="hover:bg-gray-100 rounded-full w-10 h-10 transition-colors">
+                    <MdLocalGroceryStore className="w-5 h-5" />
+                </Button>
                 {
                     user && user.email ? <>
+                        <NotificationBell />
                         <Link href={'/about-us'}><Button variant={"default"} className="md:block hidden">About Us</Button></Link>
                         <Link href={'/contact-us'}><Button variant={"default"} className="md:block hidden">Contact Us</Button></Link>
                         <Nav_Dropdown />
