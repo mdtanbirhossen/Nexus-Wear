@@ -1,8 +1,14 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/redux/features/cart/cartSlice";
+import { toast } from "sonner"; // Assuming sonner is used for toasts, or adjust accordingly
 
 interface ForSaleCardProps {
+  id?: string;
   title?: string;
   category?: string;
   originalPrice?: string;
@@ -10,24 +16,46 @@ interface ForSaleCardProps {
   rating?: string;
   badgeText?: string;
   imageUrl?: string;
+  product?: any;
 }
 
 function For_Sale_Card({
+  id,
   title,
   category,
   originalPrice,
   salePrice,
   rating = "0", // Default value to prevent undefined
   badgeText,
-  imageUrl
+  imageUrl,
+  product
 }: ForSaleCardProps) {
+  const dispatch = useDispatch();
+
   // Convert rating to number safely
   const ratingValue = parseInt(rating || "0");
   const fullStars = Math.floor(ratingValue);
   
+  const handleAddToCart = () => {
+    if (!product) return;
+    
+    dispatch(addToCart({
+      id: Math.random(), // Temporary unique ID, should be managed properly on backend or real unique key
+      cartId: 0,
+      productId: Number(product.id),
+      colorId: product.colorIds?.[0] ? Number(product.colorIds[0]) : undefined,
+      sizeId: product.sizeIds?.[0] ? Number(product.sizeIds[0]) : undefined,
+      quantity: 1,
+      price: product.price,
+      product: product
+    }));
+    
+    toast.success("Added to cart");
+  };
+
   return (
-    <Card className="w-full pt-0 overflow-hidden rounded-lg border-0 bg-white shadow-md transition-all hover:shadow-lg">
-      <div className="relative h-56 w-full">
+    <Card className="w-full pt-0 overflow-hidden rounded-lg border-0 bg-white shadow-md transition-all hover:shadow-lg flex flex-col h-full">
+      <div className="relative h-56 w-full flex-shrink-0">
         <Image
           src={imageUrl || "/profileImg.jpg"}
           alt={title || "Product Image"}
@@ -39,18 +67,18 @@ function For_Sale_Card({
         </Badge>
       </div>
       
-      <CardContent className="px-4">
+      <CardContent className="px-4 py-3 flex-grow">
         <div className="mb-1">
-          <h3 className="text-sm font-semibold text-gray-800">{title}</h3>
-          <p className="text-xs text-gray-500">{category}</p>
+          <h3 className="text-sm font-semibold text-gray-800 line-clamp-1">{title}</h3>
+          <p className="text-xs text-gray-500 line-clamp-1">{category}</p>
         </div>
         
         <div className="mb-2 flex items-center">
           <span className="text-lg font-bold text-gray-900">{salePrice}</span>
-          <span className="ml-2 text-sm text-gray-500 line-through">{originalPrice}</span>
+          {originalPrice && <span className="ml-2 text-sm text-gray-500 line-through">{originalPrice}</span>}
         </div>
         
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-auto">
           <div className="flex items-center">
             <div className="mr-1 flex items-center">
               {[...Array(5)].map((_, i) => (
@@ -72,6 +100,16 @@ function For_Sale_Card({
           </div>
         </div>
       </CardContent>
+      
+      <CardFooter className="px-4 pb-4 pt-0 mt-auto">
+        <Button 
+          onClick={handleAddToCart} 
+          className="w-full bg-black text-white hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+        >
+          <ShoppingCart className="h-4 w-4" />
+          Add to Cart
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

@@ -3,82 +3,12 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import For_Sale_Card from "./For_Sale_Card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useGetAllProductsQuery } from "@/redux/api/productsApi/productsApi";
+import { Product } from "@/types/product";
 
 export default function FlashSale() {
-    const products = [
-        {
-            title: "EliteShield Performance",
-            category: "Men's Jackets",
-            originalPrice: "Rp525.000",
-            salePrice: "Rp255.000",
-            rating: "9",
-            badgeText: "Sale",
-            imageUrl: "https://www.peakperformance.com/us/media/catalog/product/cache/55c5cdd1c3eb66319904b1430bd35b82/article_images/G79804030/G79804030_db2bfc5ae5835b0d1359d360764e1adf.jpg?optimize=low&format=pjpg&auto=webp&width=408&crop=3:4"
-        },
-        {
-            title: "EliteShield Performance",
-            category: "Men's Jackets",
-            originalPrice: "Rp525.000",
-            salePrice: "Rp255.000",
-            rating: "9",
-            badgeText: "Sale",
-            imageUrl: "https://www.peakperformance.com/us/media/catalog/product/cache/55c5cdd1c3eb66319904b1430bd35b82/article_images/G79804030/G79804030_db2bfc5ae5835b0d1359d360764e1adf.jpg?optimize=low&format=pjpg&auto=webp&width=408&crop=3:4"
-        },
-        {
-            title: "EliteShield Performance",
-            category: "Men's Jackets",
-            originalPrice: "Rp525.000",
-            salePrice: "Rp255.000",
-            rating: "9",
-            badgeText: "Sale",
-            imageUrl: "https://www.peakperformance.com/us/media/catalog/product/cache/55c5cdd1c3eb66319904b1430bd35b82/article_images/G79804030/G79804030_db2bfc5ae5835b0d1359d360764e1adf.jpg?optimize=low&format=pjpg&auto=webp&width=408&crop=3:4"
-        },
-        {
-            title: "Gentlemen's Summer Gray Hat",
-            category: "Premium Blend",
-            originalPrice: "Rp150.000",
-            salePrice: "Rp99.000",
-            rating: "9",
-            badgeText: "Sale",
-            imageUrl: "https://n.nordstrommedia.com/it/3c6d9b5a-07ee-4c52-b300-2b3d7fe5c47d.jpeg?h=368&w=240&dpr=2"
-        },
-        {
-            title: "OptiZoom Camera Shoulder Bag",
-            category: "Camera Accessories",
-            originalPrice: "Rp425.000",
-            salePrice: "Rp250.000",
-            rating: "5",
-            badgeText: "Sale",
-            imageUrl: "https://ae01.alicdn.com/kf/HTB14L5DxsyYBuNkSnfoq6AWgVXaE.jpg"
-        },
-        {
-            title: "OptiZoom Camera Shoulder Bag",
-            category: "Camera Accessories",
-            originalPrice: "Rp425.000",
-            salePrice: "Rp250.000",
-            rating: "5",
-            badgeText: "Sale",
-            imageUrl: "https://ae01.alicdn.com/kf/HTB14L5DxsyYBuNkSnfoq6AWgVXaE.jpg"
-        },
-        {
-            title: "OptiZoom Camera Shoulder Bag",
-            category: "Camera Accessories",
-            originalPrice: "Rp425.000",
-            salePrice: "Rp250.000",
-            rating: "5",
-            badgeText: "Sale",
-            imageUrl: "https://ae01.alicdn.com/kf/HTB14L5DxsyYBuNkSnfoq6AWgVXaE.jpg"
-        },
-        {
-            title: "Cloudy Chic",
-            category: "Grey Peep Toe Heeled Sandals",
-            originalPrice: "Rp580.000",
-            salePrice: "Rp270.000",
-            rating: "5",
-            badgeText: "Sale",
-            imageUrl: "https://m.media-amazon.com/images/I/71N1hjwzuWL._UY900_.jpg"
-        }
-    ];
+    const { data: productsData, isLoading } = useGetAllProductsQuery({ limit: 10 });
+    const products: Product[] = productsData?.data || [];
 
     const [timeLeft, setTimeLeft] = useState({
         hours: 8,
@@ -121,13 +51,12 @@ export default function FlashSale() {
         return () => clearInterval(timer);
     }, []);
 
-    // Calculate max slides when component mounts
     useEffect(() => {
         if (sliderRef.current) {
             const containerWidth = sliderRef.current.offsetWidth;
             const cardWidth = 256; // w-64 = 16rem = 256px
             const visibleCards = Math.floor(containerWidth / cardWidth);
-            setMaxSlides(products.length - visibleCards);
+            setMaxSlides(Math.max(0, products.length - visibleCards));
         }
     }, [products.length]);
 
@@ -149,17 +78,15 @@ export default function FlashSale() {
         }
     };
 
-    // Update current slide when scrolling
     const handleScroll = useCallback(() => {
         if (sliderRef.current) {
             const scrollPosition = sliderRef.current.scrollLeft;
-            const cardWidth = 256; // w-64 = 16rem = 256px
+            const cardWidth = 256;
             const newSlide = Math.round(scrollPosition / cardWidth);
             setCurrentSlide(newSlide);
         }
     }, []);
 
-    // Add scroll event listener
     useEffect(() => {
         const slider = sliderRef.current;
         if (slider) {
@@ -167,6 +94,10 @@ export default function FlashSale() {
             return () => slider.removeEventListener('scroll', handleScroll);
         }
     }, [handleScroll]);
+
+    if (isLoading) {
+        return <div className="py-10 text-center">Loading flash sale products...</div>;
+    }
 
     return (
         <div className="bg-[#F9F9F9] rounded-xl px-5 max-w-7xl mx-auto py-10">
@@ -193,7 +124,6 @@ export default function FlashSale() {
 
             {/* Slider container with navigation buttons */}
             <div className="relative">
-                {/* Navigation buttons - Only show if there are multiple slides */}
                 {products.length > 0 && (
                     <>
                         <button
@@ -220,23 +150,24 @@ export default function FlashSale() {
                     className="flex overflow-x-auto scrollbar-hide space-x-4 pb-4"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                    {products.map((product, index) => (
-                        <div key={index} className="flex-shrink-0 w-64">
+                    {products.map((product) => (
+                        <div key={product.id} className="flex-shrink-0 w-64">
                             <For_Sale_Card
-                                title={product.title}
-                                category={product.category}
-                                originalPrice={product.originalPrice}
-                                salePrice={product.salePrice}
-                                rating={product.rating}
-                                badgeText={product.badgeText}
-                                imageUrl={product.imageUrl}
+                                id={product.id}
+                                title={product.name}
+                                category={product.category?.name || "General"}
+                                originalPrice={product.originalPrice ? `$${product.originalPrice}` : undefined}
+                                salePrice={`$${product.price}`}
+                                rating={product.rating?.toString()}
+                                badgeText={"Sale"}
+                                imageUrl={product.images && product.images.length > 0 ? product.images[0] : ""}
+                                product={product}
                             />
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Slider indicators - Only show if there are multiple slides */}
             {products.length > 0 && (
                 <div className="flex justify-center mt-6 space-x-2">
                     {Array.from({ length: maxSlides + 1 }).map((_, index) => (
@@ -246,7 +177,7 @@ export default function FlashSale() {
                                 }`}
                             onClick={() => {
                                 if (sliderRef.current) {
-                                    const scrollPosition = index * 256; // w-64 = 256px
+                                    const scrollPosition = index * 256; 
                                     sliderRef.current.scrollTo({ left: scrollPosition, behavior: 'smooth' });
                                     setCurrentSlide(index);
                                 }
