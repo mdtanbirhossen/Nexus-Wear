@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { apiSlice } from "./api/apiSlice";
 import authReducer from "./features/auth/authSlice";
 import adminAuthReducer from "./features/adminAuthSlice";
+import cartReducer from "./features/cart/cartSlice";
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import getStorage from "@/lib/getStorage";
@@ -18,14 +19,22 @@ const adminAuthPersistConfig = {
   storage,
 };
 
+// Cart — persisted under key "cart"
+const cartPersistConfig = {
+  key: "cart",
+  storage: getStorage,
+};
+
 const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
 const persistedAdminAuthReducer = persistReducer(adminAuthPersistConfig, adminAuthReducer);
+const persistedCartReducer = persistReducer(cartPersistConfig, cartReducer);
 
 export const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
     auth: persistedAuthReducer,
     adminAuth: persistedAdminAuthReducer,
+    cart: persistedCartReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
