@@ -31,7 +31,7 @@ export interface ILogin {
 
 export interface ILoginResponse {
   data: {
-    id: number;
+    id: string;
     deletedAt: string | null;
     createdAt: string;
     updatedAt: string;

@@ -102,8 +102,8 @@ const ProductForm = () => {
                description: data.description,
                price: Number(data.price), // ensure it's a number
                availability: data.availability,
-               categoryId: Number(data.categoryId),
-               subcategoryId: Number(data.subcategoryId),
+               categoryId: data.categoryId,
+               subcategoryId: data.subcategoryId,
                colorIds: data.colorIds || [],
                sizeIds: data.sizeIds || [],
                images, 
@@ -299,7 +299,7 @@ const ProductForm = () => {
                                    options={categoryOptions}
                                    onChange={(selected) => {
                                         setValue(
-                                             "categoryId", Number(selected?.value)
+                                             "categoryId", selected?.value as string
                                         );
                                    }}
                                    placeholder="Select colors..."
@@ -317,7 +317,7 @@ const ProductForm = () => {
                                    options={subCategoryOptions}
                                    onChange={(selected) => {
                                         setValue(
-                                             "subcategoryId", Number(selected?.value)
+                                             "subcategoryId", selected?.value as string
                                         );
                                    }}
                                    placeholder="Select colors..."

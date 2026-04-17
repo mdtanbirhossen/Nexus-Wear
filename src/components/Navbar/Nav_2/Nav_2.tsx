@@ -21,7 +21,7 @@ export default function Nav_2() {
               {categories.map((item: any) => (
                 <li key={item.id}>
                   <NavigationMenuLink asChild>
-                    <Link href={`/products/${item.name.toLowerCase()}?categoryId=${item.id}`} className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                    <Link href={`/products?categoryId=${item.id}`} className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
                       {item.name}
                     </Link>
                   </NavigationMenuLink>

@@ -19,7 +19,7 @@ export default function Navigation_Menu() {
         const decodedPath = decodeURIComponent(pathName);
         const isActive = decodedPath === `/products/${item.name.toLowerCase()}` || decodedPath === `/products/${item.name}`;
         return (
-          <Link href={`/products/${item.name.toLowerCase()}?categoryId=${item.id}`} key={item.id}>
+          <Link href={`/products?categoryId=${item.id}`} key={item.id}>
             <Button
               variant={isActive ? 'secondary' : 'outline'}
               className="whitespace-nowrap"

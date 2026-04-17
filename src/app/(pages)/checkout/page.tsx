@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,16 +10,25 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useSelector, useDispatch } from "react-redux"
 import { RootState } from "@/redux/store"
 import { useInitiatePaymentMutation } from "@/redux/api/paymentApi/paymentApi"
-import { toast } from "sonner"
+import { useGetAddressByCustomerIdQuery, useSaveCustomerAddressMutation } from "@/redux/api/addressApi/addressApi"
+import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
 import { clearCart } from "@/redux/features/cart/cartSlice"
+import useAuthState from "@/hooks/useAuthState"
 
 export default function CheckoutPage() {
   const router = useRouter()
   const dispatch = useDispatch()
+  const user = useAuthState()
+  
   const { items, totalAmount } = useSelector((state: RootState) => state.cart)
   
   const [initiatePayment, { isLoading: isPaymentLoading }] = useInitiatePaymentMutation()
+  const [saveAddress] = useSaveCustomerAddressMutation()
+  
+  const { data: addressResponse, isLoading: isLoadingAddress } = useGetAddressByCustomerIdQuery(user?.id as string, {
+    skip: !user?.id
+  })
   
   const [formData, setFormData] = useState({
     firstName: "",
@@ -32,6 +41,32 @@ export default function CheckoutPage() {
   })
   
   const [paymentMethod, setPaymentMethod] = useState("sslcommerz")
+
+  // Redirect to login if unauthenticated
+  useEffect(() => {
+    if (!user) {
+      toast.error("Please login to proceed to checkout")
+      router.push("/login")
+    }
+  }, [user, router])
+
+  // Prefill shipping info
+  useEffect(() => {
+    if (addressResponse?.data) {
+      const addr = addressResponse.data
+      setFormData({
+        firstName: addr.firstName || "",
+        lastName: addr.lastName || "",
+        email: addr.email || user?.email || "",
+        phone: addr.phone || "",
+        address: addr.addressLine || "",
+        city: addr.city || "",
+        postalCode: addr.postalCode || "",
+      })
+    } else if (user) {
+       setFormData(prev => ({ ...prev, email: user.email || "" }))
+    }
+  }, [addressResponse, user])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -46,37 +81,55 @@ export default function CheckoutPage() {
       return
     }
 
+    if (!user?.id) {
+       toast.error("You must be logged in")
+       return
+    }
+
     try {
-      if (paymentMethod === "sslcommerz") {
-        // Here we trigger the backend initiatePayment API
-        const payload = {
-          totalAmount,
-          currency: "BDT",
-          cus_name: `${formData.firstName} ${formData.lastName}`,
-          cus_email: formData.email,
-          cus_add1: formData.address,
-          cus_city: formData.city,
-          cus_postcode: formData.postalCode,
-          cus_phone: formData.phone,
-          // other details for lines, etc.
-          items: items.map(i => ({
-             productId: i.productId,
-             quantity: i.quantity,
-             price: i.price,
-             sizeId: i.sizeId,
-             colorId: i.colorId
-          }))
+      // 1. Save or Update address silently
+      await saveAddress({
+        customerId: user.id,
+        data: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          addressLine: formData.address,
+          city: formData.city,
+          postalCode: formData.postalCode,
+          customerId: user.id,
         }
-        
-        const res = await initiatePayment(payload).unwrap()
+      }).unwrap()
+
+      // 2. Prepare standardized Order Payload
+      const payload = {
+        addressLine: formData.address,
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        email: formData.email,
+        phoneNumber: formData.phone,
+        paymentType: paymentMethod === "sslcommerz" ? "SSL" : "COD",
+        customerId: user.id,
+        totalAmount,
+        products: items.map(i => ({
+           productId: i.productId,
+           quantity: i.quantity,
+           unitPrice: i.price,
+           totalPrice: i.price * i.quantity,
+           sizeId: i.sizeId || "",
+           colorId: i.colorId || ""
+        }))
+      }
+      
+      const res = await initiatePayment(payload).unwrap()
+      
+      if (paymentMethod === "sslcommerz") {
         if (res?.paymentUrl) {
-           // Redirect to gateway
            window.location.href = res.paymentUrl
         } else {
            toast.error(res?.message || "Failed to initiate payment")
         }
       } else if (paymentMethod === "cod") {
-        // API call to create order with COD
         toast.success("Order placed successfully with Cash on Delivery")
         dispatch(clearCart())
         router.push("/dashboard/orders")
@@ -84,6 +137,10 @@ export default function CheckoutPage() {
     } catch (err: any) {
       toast.error(err?.data?.message || "Something went wrong")
     }
+  }
+
+  if (!user || isLoadingAddress) {
+     return <div className="min-h-screen flex justify-center items-center">Loading...</div>
   }
 
   if (items.length === 0) {

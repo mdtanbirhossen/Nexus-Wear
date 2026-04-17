@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/redux/features/cart/cartSlice";
-import { toast } from "sonner"; // Assuming sonner is used for toasts, or adjust accordingly
+import toast from "react-hot-toast";
 
 interface ForSaleCardProps {
   id?: string;
@@ -40,11 +40,11 @@ function For_Sale_Card({
     if (!product) return;
     
     dispatch(addToCart({
-      id: Math.random(), // Temporary unique ID, should be managed properly on backend or real unique key
-      cartId: 0,
-      productId: Number(product.id),
-      colorId: product.colorIds?.[0] ? Number(product.colorIds[0]) : undefined,
-      sizeId: product.sizeIds?.[0] ? Number(product.sizeIds[0]) : undefined,
+      id: crypto.randomUUID(), 
+      cartId: '0',
+      productId: product.id,
+      colorId: product.colorIds?.[0] || undefined,
+      sizeId: product.sizeIds?.[0] || undefined,
       quantity: 1,
       price: product.price,
       product: product

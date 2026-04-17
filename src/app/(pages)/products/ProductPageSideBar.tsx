@@ -34,7 +34,7 @@ const ProductPageSideBar = () => {
   const { data: colorsData } = useGetAllColorsQuery({ limit: 50 });
   const { data: sizesData } = useGetAllsizesQuery({ limit: 50 });
   const { data: subcategoriesData } = useGetAllSubCategoriesQuery(
-    { categoryId: Number(currentCategoryId), limit: 50 },
+    { categoryId: currentCategoryId as string, limit: 50 },
     { skip: !currentCategoryId }
   );
 

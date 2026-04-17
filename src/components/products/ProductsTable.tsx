@@ -63,7 +63,7 @@ export default function ProductsTable() {
           limit: itemsPerPage,
           search: debouncedSearch,
           status: statusFilter === "all" ? undefined : statusFilter,
-          categoryId: categoryId === "all" ? undefined : Number(categoryId)
+          categoryId: categoryId === "all" ? undefined : categoryId
      })
      console.log(data);
 

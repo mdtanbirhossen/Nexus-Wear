@@ -22,7 +22,7 @@ import Image from "next/image";
 import { useGetAllProductsQuery } from "@/redux/api/productsApi/productsApi";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/redux/features/cart/cartSlice";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 export function Today_For_You_Tab() {
   const { data: productsData, isLoading } = useGetAllProductsQuery({ limit: 8 });
@@ -31,11 +31,11 @@ export function Today_For_You_Tab() {
 
   const handleAddToCart = (product: any) => {
     dispatch(addToCart({
-      id: Math.random(),
-      cartId: 0,
-      productId: Number(product.id),
-      colorId: product.colorIds?.[0] ? Number(product.colorIds[0]) : undefined,
-      sizeId: product.sizeIds?.[0] ? Number(product.sizeIds[0]) : undefined,
+      id: crypto.randomUUID(),
+      cartId: '0',
+      productId: product.id,
+      colorId: product.colorIds?.[0] || undefined,
+      sizeId: product.sizeIds?.[0] || undefined,
       quantity: 1,
       price: product.price,
       product: product

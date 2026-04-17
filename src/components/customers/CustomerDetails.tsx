@@ -18,7 +18,7 @@ const CustomerDetails = () => {
     
     // Fetch customer's orders
     const { data: ordersData, isLoading: isLoadingOrders } = useGetAllOrdersQuery({ 
-        customerId: Number(id),
+        customerId: id as string,
         limit: 10
     })
 

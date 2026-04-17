@@ -31,9 +31,9 @@ const formatDistanceToNowNative = (date: Date) => {
 const NotificationBell = () => {
   const user = useAuthState()
   const router = useRouter()
-  const customerId = user?.id ? Number(user.id) : null
+  const customerId = user?.id || null
   
-  const { data: notifications = [], isLoading } = useGetNotificationsByCustomerQuery(customerId as number, {
+  const { data: notifications = [], isLoading } = useGetNotificationsByCustomerQuery(customerId as string, {
     skip: !customerId,
     pollingInterval: 30000, // Poll every 30 seconds
   })
