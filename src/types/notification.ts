@@ -1,10 +1,10 @@
 export interface Notification {
-  id: number;
+  id: string;
   title: string;
   message: string;
-  customerId?: number;
-  orderId?: number;
-  paymentId?: number;
+  customerId?: string;
+  orderId?: string;
+  paymentId?: string;
   offer?: boolean;
   isSeen: boolean;
   createdAt: string;

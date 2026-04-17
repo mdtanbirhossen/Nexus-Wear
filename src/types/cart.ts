@@ -1,17 +1,17 @@
 export interface CartItem {
-  id: number;
-  cartId: number;
-  productId: number;
-  colorId?: number;
-  sizeId?: number;
+  id: string;
+  cartId: string;
+  productId: string;
+  colorId?: string;
+  sizeId?: string;
   quantity: number;
   price: number;
-  product?: any; // You can type this better later if needed
+  product?: any;
 }
 
 export interface Cart {
-  id: number;
-  customerId?: number | null;
+  id: string;
+  customerId?: string | null;
   sessionId?: string | null;
   totalQuantity: number;
   totalAmount: number;

@@ -18,17 +18,17 @@ export enum PaymentType {
 }
 
 export interface OrderProduct {
-  productId: number;
+  productId: string;
   productCode?: string;
-  sizeId?: number;
-  colorId?: number;
+  sizeId?: string;
+  colorId?: string;
   unitPrice: number;
   quantity: number;
   totalPrice: number;
 }
 
 export interface Order {
-  id: number;
+  id: string;
   orderDate: string;
   addressLine: string;
   name: string;
@@ -40,7 +40,7 @@ export interface Order {
   status: OrderStatus;
   paymentType: PaymentType;
   totalAmount: number;
-  customerId: number;
+  customerId: string;
   products: OrderProduct[];
   customer?: Customer;
   createdAt: string;
