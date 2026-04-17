@@ -5,7 +5,7 @@ export type CreateOrder = Omit<Order, 'id' | 'createdAt' | 'updatedAt'>;
 
 export const orderApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getAllOrders: builder.query<OrderResponse, { page?: number; limit?: number; customerId?: number }>({
+    getAllOrders: builder.query<OrderResponse, { page?: number; limit?: number; customerId?: string }>({
       query: (params) => ({
         url: "/order",
         params,
@@ -13,7 +13,7 @@ export const orderApi = apiSlice.injectEndpoints({
       providesTags: ["Order"],
     }),
 
-    getOrderById: builder.query<Order, string | number>({
+    getOrderById: builder.query<Order, string>({
       query: (id) => `/order/${id}`,
       providesTags: (result, error, id) => [{ type: "Order" as const, id }],
     }),
@@ -27,7 +27,7 @@ export const orderApi = apiSlice.injectEndpoints({
       invalidatesTags: ["Order"],
     }),
 
-    updateOrder: builder.mutation<Order, { id: number | string; data: Partial<Order> }>({
+    updateOrder: builder.mutation<Order, { id: string; data: Partial<Order> }>({
       query: ({ id, data }) => ({
         url: `/order/${id}`,
         method: "PUT",
@@ -36,7 +36,7 @@ export const orderApi = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { id }) => ["Order", { type: "Order", id }],
     }),
 
-    deleteOrder: builder.mutation<{ message: string }, number | string>({
+    deleteOrder: builder.mutation<{ message: string }, string>({
       query: (id) => ({
         url: `/order/${id}`,
         method: "DELETE",

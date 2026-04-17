@@ -8,7 +8,7 @@ export const cartApi = apiSlice.injectEndpoints({
             providesTags: ["customer"], // Assuming cache tag for customer cart
         }),
 
-        getCartByCustomerId: builder.query<Cart, number>({
+        getCartByCustomerId: builder.query<Cart, string>({
              query: (customerId) => `/cart/customer/${customerId}`,
              providesTags: ["customer"],
         }),
@@ -18,7 +18,7 @@ export const cartApi = apiSlice.injectEndpoints({
              providesTags: ["customer"],
         }),
 
-        addCartItem: builder.mutation<Cart, Partial<CartItem> & { sessionId?: string; customerId?: number }>({
+        addCartItem: builder.mutation<Cart, Partial<CartItem> & { sessionId?: string; customerId?: string }>({
              query: (data) => ({
                  url: '/cart/item',
                  method: 'POST',
@@ -27,7 +27,7 @@ export const cartApi = apiSlice.injectEndpoints({
              invalidatesTags: ["customer"],
         }),
 
-        updateCartItem: builder.mutation<Cart, { itemId: number; quantity: number }>({
+        updateCartItem: builder.mutation<Cart, { itemId: string; quantity: number }>({
              query: ({ itemId, quantity }) => ({
                  url: `/cart/item/${itemId}`,
                  method: 'PATCH',
@@ -36,7 +36,7 @@ export const cartApi = apiSlice.injectEndpoints({
              invalidatesTags: ["customer"],
         }),
 
-        deleteCartItem: builder.mutation<Cart, number>({
+        deleteCartItem: builder.mutation<Cart, string>({
              query: (itemId) => ({
                  url: `/cart/item/${itemId}`,
                  method: 'DELETE',

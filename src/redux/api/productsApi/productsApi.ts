@@ -10,10 +10,10 @@ export const productsApi = apiSlice.injectEndpoints({
                limit?: number; 
                search?: string; 
                status?: string;
-               categoryId?: number;
-               subcategoryId?: number;
-               colorId?: number;
-               sizeId?: number;
+               categoryId?: string;
+               subcategoryId?: string;
+               colorId?: string;
+               sizeId?: string;
                minPrice?: number;
                maxPrice?: number;
           } | undefined>({

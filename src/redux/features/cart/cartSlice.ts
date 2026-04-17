@@ -39,7 +39,7 @@ const cartSlice = createSlice({
       state.totalQuantity += newItem.quantity;
       state.totalAmount += newItem.price * newItem.quantity;
     },
-    removeFromCart: (state, action: PayloadAction<number>) => { // passing productId or unique id? Using item's own unique id or composite
+    removeFromCart: (state, action: PayloadAction<string>) => {
       const id = action.payload;
       const existingItem = state.items.find((item) => item.id === id);
       if (existingItem) {
@@ -48,7 +48,7 @@ const cartSlice = createSlice({
         state.items = state.items.filter((item) => item.id !== id);
       }
     },
-    updateQuantity: (state, action: PayloadAction<{ id: number; quantity: number }>) => {
+    updateQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
       const { id, quantity } = action.payload;
       const existingItem = state.items.find((item) => item.id === id);
       if (existingItem) {

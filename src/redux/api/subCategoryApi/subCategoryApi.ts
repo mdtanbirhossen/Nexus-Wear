@@ -5,7 +5,7 @@ export const subCategoryApi = apiSlice.injectEndpoints({
      endpoints: (builder) => ({
           // subCategoryApi.ts
           getAllSubCategories: builder.query({
-               query: (params?: { page?: number; limit?: number; search?: string; status?: string; categoryId?: number }) => ({
+               query: (params?: { page?: number; limit?: number; search?: string; status?: string; categoryId?: string }) => ({
                     url: `/subcategory`,
                     params,
                }),

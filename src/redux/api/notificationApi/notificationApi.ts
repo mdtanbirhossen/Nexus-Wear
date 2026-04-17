@@ -3,12 +3,12 @@ import { Notification } from "@/types/notification";
 
 export const notificationApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getNotificationsByCustomer: builder.query<Notification[], number>({
+    getNotificationsByCustomer: builder.query<Notification[], string>({
       query: (customerId) => `/notification/customer/${customerId}`,
       providesTags: ["Notification"],
     }),
 
-    markAsSeen: builder.mutation<void, { id: number; customerId: number }>({
+    markAsSeen: builder.mutation<void, { id: string; customerId: string }>({
       query: ({ id, customerId }) => ({
         url: `/notification/${id}/seen/${customerId}`,
         method: "PATCH",
