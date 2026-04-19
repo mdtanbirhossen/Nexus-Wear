@@ -34,9 +34,9 @@ export default function BasicLayout({
   return (
     <AuthInitializer>
       {!hideNavAndFooter && (
-        <nav>
+        <header className="relative z-[1000] w-full">
           <Navbar />
-        </nav>
+        </header>
       )}
       <main className="md:px-5 px-3">{children}</main>
       {!hideNavAndFooter && (

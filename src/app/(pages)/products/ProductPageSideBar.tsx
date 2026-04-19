@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useGetAllCategoriesQuery } from '@/redux/api/categoryApi/categoryApi';
 import { useGetAllColorsQuery } from '@/redux/api/colorApi/colorApi';
@@ -7,7 +7,7 @@ import { ChevronDown, X, Filter, Check } from 'lucide-react';
 import { useGetAllsizesQuery } from '@/redux/api/sizeApi/sizeApi';
 import { useGetAllSubCategoriesQuery } from '@/redux/api/subCategoryApi/subCategoryApi';
 import { Category, Subcategory } from '@/types/categoryAndSubcategory';
-import { Color } from '@/types/color';
+import { Color } from '@/types/color'
 import { Size } from '@/types/size';
 
 const ProductPageSideBar = () => {
@@ -20,6 +20,27 @@ const ProductPageSideBar = () => {
   const currentSizeId = searchParams.get('sizeId');
   const currentMinPrice = searchParams.get('minPrice');
   const currentSubCategoryId = searchParams.get('subcategoryId');
+
+  // ✅ Proper debounce using ref — cleans up on unmount
+  const [searchValue, setSearchValue] = useState(searchParams.get('search') || '');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    debounceRef.current = setTimeout(() => {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      if (searchValue) {
+        current.set('search', searchValue);
+      } else {
+        current.delete('search');
+      }
+      const query = current.toString();
+      router.push(`${pathname}${query ? `?${query}` : ''}`);
+    }, 500);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchValue]);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     categories: true,
@@ -59,7 +80,22 @@ const ProductPageSideBar = () => {
     router.push(`${pathname}${query}`);
   };
 
+  // ✅ Single router.push for price range (was 2 separate pushes — race condition)
+  const updatePriceFilter = (min: string | null, max: string | null) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    if (!min) {
+      current.delete('minPrice');
+      current.delete('maxPrice');
+    } else {
+      current.set('minPrice', min);
+      if (max) current.set('maxPrice', max);
+    }
+    const query = current.toString();
+    router.push(`${pathname}${query ? `?${query}` : ''}`);
+  };
+
   const clearAllFilters = () => {
+    setSearchValue('');
     router.push(pathname);
   };
 
@@ -91,14 +127,8 @@ const ProductPageSideBar = () => {
           <input 
             type="text"
             placeholder="Search items..."
-            defaultValue={searchParams.get('search') || ''}
-            onChange={(e) => {
-               const val = e.target.value;
-               const timeout = setTimeout(() => {
-                  updateFilter('search', val || null);
-               }, 500);
-               return () => clearTimeout(timeout);
-            }}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
             className="w-full bg-gray-50 border border-gray-100 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
           />
       </div>
@@ -204,10 +234,10 @@ const ProductPageSideBar = () => {
             {priceRanges.map((range) => (
               <div 
                 key={range.label}
-                onClick={() => {
-                  updateFilter('minPrice', currentMinPrice === range.min.toString() ? null : range.min.toString());
-                  updateFilter('maxPrice', currentMinPrice === range.min.toString() ? null : range.max.toString());
-                }}
+                onClick={() => updatePriceFilter(
+                  currentMinPrice === range.min.toString() ? null : range.min.toString(),
+                  currentMinPrice === range.min.toString() ? null : range.max.toString()
+                )}
                 className={`text-sm cursor-pointer hover:text-primary transition-colors flex justify-between items-center ${currentMinPrice === range.min.toString() ? 'text-primary font-bold' : 'text-gray-500'}`}
               >
                 <span>{range.label}</span>

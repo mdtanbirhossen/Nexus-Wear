@@ -62,7 +62,10 @@ const bannerItems = [
 
 export function Slider() {
   return (
-    <Carousel className="w-full rounded-xl h-full min-h-[500px] md:min-h-[600px] lg:min-h-[500px] relative group">
+    <Carousel
+      opts={{ loop: true, watchDrag: false }}
+      className="w-full rounded-xl h-full min-h-[500px] md:min-h-[600px] lg:min-h-[500px] relative group"
+    >
       <CarouselContent className="rounded-xl">
         {bannerItems.map((item) => (
           <CarouselItem key={item.id}>

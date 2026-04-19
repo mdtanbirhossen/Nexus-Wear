@@ -180,8 +180,8 @@ export default function SizeTable() {
                                              </TableCell> */}
 
                                              <TableCell>{size.name}</TableCell>
-                                             <TableCell>{size.description.slice(0, 20) + "...."}</TableCell>
-                                             <TableCell>{size.createdAt.slice(0, 10)}</TableCell>
+                                             <TableCell>{size.description?.slice(0, 20) ?? ""}{size.description && size.description.length > 20 ? "...." : ""}</TableCell>
+                                             <TableCell>{size.createdAt?.slice(0, 10) ?? "N/A"}</TableCell>
 
                                              
 
