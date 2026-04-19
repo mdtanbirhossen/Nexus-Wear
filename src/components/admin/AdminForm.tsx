@@ -28,7 +28,7 @@ import Loading from "../shared/Loading";
 const AdminForm = () => {
      /* ---------------------- State & Hooks ---------------------- */
      const [imagePreview, setImagePreview] = useState<string | null>(null);
-     const [loading,setLoading] = useState(false)
+     const [loading, setLoading] = useState(false)
 
      const { id } = useParams();
      const router = useRouter();
@@ -37,7 +37,7 @@ const AdminForm = () => {
 
      /* ---------------------- API Calls ---------------------- */
      const { data: roleData } = useGetAllRolesQuery(undefined);
-     const { data: admin } = useGetAdminByIdQuery(id);
+     const { data: admin } = useGetAdminByIdQuery(id, { skip: !id });
      const [createAdmin] = useCreateAdminMutation();
      const [updateAdminDetails] = useUpdateAdminDetailsMutation();
 
@@ -52,7 +52,7 @@ const AdminForm = () => {
           reset,
      } = useForm<Admin>();
 
-     
+
      useEffect(() => {
           if (adminInfo && formattedText === "update") {
                reset({
@@ -105,7 +105,7 @@ const AdminForm = () => {
           } catch (err) {
                console.error("Failed to save admin:", err);
                toast.error("Failed to save admin");
-          }finally{
+          } finally {
                setLoading(false)
           }
      };
