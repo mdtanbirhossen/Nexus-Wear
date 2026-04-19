@@ -28,7 +28,7 @@ const ProductForm = () => {
      const [loading, setLoading] = useState(false)
      const router = useRouter();
      const pathname = usePathname();
-     const formattedText = pathname.split("/")[2];
+     const formattedText = pathname.includes("/update") ? "update" : "create";
 
 
 

@@ -16,7 +16,7 @@ const authPersistConfig = {
 // Admin auth — persisted under a separate key "adminAuth"
 const adminAuthPersistConfig = {
   key: "adminAuth",
-  storage,
+  storage: getStorage,
 };
 
 // Cart — persisted under key "cart"

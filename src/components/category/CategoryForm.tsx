@@ -26,7 +26,7 @@ const CategoryForm = () => {
      const { id } = useParams();
      const router = useRouter();
      const pathname = usePathname();
-     const formattedText = pathname.split("/")[2];
+     const formattedText = pathname.includes("/update") ? "update" : "create";
 
      const { data: category } = useGetCategoryByIdQuery(id);
      const [createCategory] = useCreateCategoryMutation();

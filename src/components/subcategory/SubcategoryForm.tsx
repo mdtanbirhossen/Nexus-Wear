@@ -26,7 +26,7 @@ const SubcategoryForm = () => {
      const { id } = useParams()
      const router = useRouter()
      const pathname = usePathname()
-     const mode = pathname.split("/")[2] // create | update
+     const mode = pathname.includes("/update") ? "update" : "create"
 
      // Queries
      const { data: subcategory } = useGetSubCategoryByIdQuery(id, { skip: mode !== "update" })
@@ -117,8 +117,8 @@ const SubcategoryForm = () => {
                          {/* Category Selection */}
                          <div className="space-y-2">
                               <label className="text-sm font-semibold text-primary">Parent Category</label>
-                              <Select 
-                                   value={selectedCategoryId} 
+                              <Select
+                                   value={selectedCategoryId}
                                    onValueChange={(val) => setValue("categoryId", val)}
                               >
                                    <SelectTrigger className="h-12 border-gray-200">
@@ -193,9 +193,9 @@ const SubcategoryForm = () => {
                          >
                               Cancel
                          </Button>
-                         <Button 
-                              disabled={loading} 
-                              type="submit" 
+                         <Button
+                              disabled={loading}
+                              type="submit"
                               className="px-8 bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-lg shadow-secondary/20"
                          >
                               {loading ? <Loading /> : (mode === "update" ? "Update Subcategory" : "Create Subcategory")}

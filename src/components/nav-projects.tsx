@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sidebar"
 import { NavProjectsProps } from "@/types/navProjectsProps"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 export function NavProjects({ title, items }: NavProjectsProps) {
   const pathname = usePathname()
@@ -25,14 +26,36 @@ export function NavProjects({ title, items }: NavProjectsProps) {
             <SidebarMenuItem key={item.name}>
               <Link
                 href={item.url}
-                className={`text-gray-600 `}
-                onClick={() => {
-                  toggleSidebar()
-                }}
+                onClick={() => toggleSidebar()}
+                className="block"
               >
-                <SidebarMenuButton tooltip={item.name} isActive={isActive}>
-                  {item.icon && <item.icon className="h-4 w-4" />}
-                  <span>{item.name}</span>
+                <SidebarMenuButton 
+                  tooltip={item.name} 
+                  isActive={isActive}
+                  className={cn(
+                    "relative transition-all duration-200 h-10 px-3",
+                    isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+                  )}
+                >
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-secondary" />
+                  )}
+                  {item.icon && (
+                    <item.icon 
+                      className={cn(
+                        "h-4 w-4 transition-colors", 
+                        isActive ? "text-secondary" : "text-sidebar-foreground/60"
+                      )} 
+                    />
+                  )}
+                  <span 
+                    className={cn(
+                      "font-medium transition-colors", 
+                      isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/70"
+                    )}
+                  >
+                    {item.name}
+                  </span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
@@ -46,11 +69,35 @@ export function NavProjects({ title, items }: NavProjectsProps) {
             <SidebarMenuItem key={item.name}>
               <Link
                 href={item.url}
-                className={`text-gray-600 `}
+                className="block"
               >
-                <SidebarMenuButton tooltip={item.name} isActive={isActive}>
-                  {item.icon && <item.icon className="h-4 w-4" />}
-                  <span>{item.name}</span>
+                <SidebarMenuButton 
+                  tooltip={item.name} 
+                  isActive={isActive}
+                  className={cn(
+                    "relative transition-all duration-200 h-10 px-3",
+                    isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+                  )}
+                >
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-secondary" />
+                  )}
+                  {item.icon && (
+                    <item.icon 
+                      className={cn(
+                        "h-4 w-4 transition-colors", 
+                        isActive ? "text-secondary" : "text-sidebar-foreground/60"
+                      )} 
+                    />
+                  )}
+                  <span 
+                    className={cn(
+                      "font-medium transition-colors", 
+                      isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/70"
+                    )}
+                  >
+                    {item.name}
+                  </span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
@@ -58,6 +105,5 @@ export function NavProjects({ title, items }: NavProjectsProps) {
         })}
       </SidebarMenu>
     </SidebarGroup>
-
   )
 }

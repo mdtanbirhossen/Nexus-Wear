@@ -6,11 +6,16 @@ const adminPaths = ['/management']
 // paths that require customer authentication
 const customerPaths = ['/dashboard']
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // 1. Admin Protection
   if (adminPaths.some(path => pathname.startsWith(path))) {
+    // Prevent infinite redirect loop for signin page
+    if (pathname.replace(/\/$/, "") === '/management/signin') {
+      return NextResponse.next()
+    }
+
     const adminToken = request.cookies.get('adminToken')?.value
 
     if (!adminToken) {

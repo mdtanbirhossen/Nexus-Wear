@@ -16,7 +16,11 @@ import {
      SidebarContent,
      SidebarFooter,
      SidebarHeader,
+     SidebarSeparator,
 } from "@/components/ui/sidebar"
+
+// Admin Dashboard Data
+// ... [data definition remains the same]
 
 // Admin Dashboard Data
 const data = {
@@ -66,9 +70,13 @@ export function AppSidebarAdmin({ ...props }: React.ComponentProps<typeof Sideba
 
                <SidebarContent>
                     <NavProjects title="Main" items={data.main} />
+                    <SidebarSeparator className="opacity-20 mx-4" />
                     <NavProjects title="Ecommerce" items={data.ecommerce} />
+                    <SidebarSeparator className="opacity-20 mx-4" />
                     <NavProjects title="Catalog" items={data.catalog} />
+                    <SidebarSeparator className="opacity-20 mx-4" />
                     <NavProjects title="User Management" items={data.userManagement} />
+                    <SidebarSeparator className="opacity-20 mx-4" />
                     <NavProjects title="Settings" items={data.settings} />
                </SidebarContent>
 

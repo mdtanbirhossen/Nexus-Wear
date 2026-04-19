@@ -24,7 +24,7 @@ export default function ManagementLayout({ children }: { children: ReactNode }) 
      const { token } = useAppSelector((state) => state.adminAuth);
      const rehydrated = useAppSelector((state: RootState) => (state.adminAuth as unknown as { _persist: { rehydrated: boolean } })._persist?.rehydrated);
 
-     const isSigninPage = pathname === "/management/signin";
+     const isSigninPage = pathname?.replace(/\/$/, "") === "/management/signin";
 
      useEffect(() => {
           // Redirect to management signin if not authenticated
