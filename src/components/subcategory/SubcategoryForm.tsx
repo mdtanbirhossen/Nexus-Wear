@@ -84,7 +84,7 @@ const SubcategoryForm = () => {
                     await updateSubcategory({ formData, subCategoryId: id }).unwrap()
                     toast.success("Subcategory updated successfully")
                }
-               router.push("/management/subcategories")
+               router.push("/management/sub-categories")
           } catch (err) {
                console.error("Failed to save subcategory:", err)
                toast.error("Failed to save subcategory")

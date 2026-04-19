@@ -48,7 +48,7 @@ const data = {
      ],
      catalog: [
           { name: "Categories", url: "/management/categories", icon: Folder },
-          { name: "Subcategories", url: "/management/subcategories", icon: Layers },
+          { name: "Subcategories", url: "/management/sub-categories", icon: Layers },
           { name: "Colors", url: "/management/color", icon: Palette },
           { name: "Sizes", url: "/management/size", icon: Ruler },
      ],

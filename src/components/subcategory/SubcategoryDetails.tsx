@@ -75,7 +75,7 @@ const SubcategoryDetails = () => {
                                    Go Back
                               </Button>
                               <Button 
-                                   onClick={() => router.push(`/management/subcategories/update/${id}`)}
+                                   onClick={() => router.push(`/management/sub-categories/update/${id}`)}
                                    className="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-8"
                               >
                                    Edit Details

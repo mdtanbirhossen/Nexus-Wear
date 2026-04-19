@@ -84,7 +84,7 @@ const SubCategoryForm = () => {
                     console.log(result);
                     toast.success(`SubCategory updated successfully`);
                }
-               router.push("/management/subCategories");
+               router.push("/management/sub-categories");
           } catch (err) {
                console.error("Failed to save SubCategory:", err);
                toast.error("Failed to save SubCategory");

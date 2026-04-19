@@ -136,7 +136,7 @@ export default function SubCategoryTable() {
                               </SelectContent>
                          </Select>
 
-                         <Button onClick={() => router.push("/management/subCategories/create")}>
+                         <Button onClick={() => router.push("/management/sub-categories/create")}>
                               Add subCategory
                          </Button>
                     </div>
@@ -193,7 +193,7 @@ export default function SubCategoryTable() {
                                              <TableCell>
                                                   {/* Edit */}
                                                   <Button
-                                                       onClick={() => router.push(`/management/subCategories/update/${subCategory.id}`)}
+                                                       onClick={() => router.push(`/management/sub-categories/update/${subCategory.id}`)}
                                                        variant="ghost"
                                                        className="h-8 w-8 p-0"
                                                   >
@@ -202,7 +202,7 @@ export default function SubCategoryTable() {
 
                                                   {/* Details */}
                                                   <Button
-                                                       onClick={() => router.push(`/management/subCategories/details/${subCategory.id}`)}
+                                                       onClick={() => router.push(`/management/sub-categories/details/${subCategory.id}`)}
                                                        variant="ghost"
                                                        className="h-8 w-8 p-0"
                                                   >

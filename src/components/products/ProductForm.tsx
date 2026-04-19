@@ -408,9 +408,9 @@ const ProductForm = ({ initialData, onSubmit, isSubmitting, buttonLabel }: Produ
                          </div>
 
 
-                         <Button 
-                              disabled={loading || isSubmitting} 
-                              type="submit" 
+                         <Button
+                              disabled={loading || isSubmitting}
+                              type="submit"
                               className="mt-6 w-full h-12 bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-lg shadow-secondary/20 transition-all font-bold tracking-wide"
                          >
                               {loading || isSubmitting ? <Loading /> : buttonLabel}
