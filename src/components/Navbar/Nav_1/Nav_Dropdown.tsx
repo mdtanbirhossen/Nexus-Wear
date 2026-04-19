@@ -37,7 +37,7 @@ export function Nav_Dropdown() {
                     <AvatarFallback>ER</AvatarFallback>
                 </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
+            <DropdownMenuContent className="w-56 z-[1000]" align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuGroup>
                     <Link href={'/dashboard/profile'}><DropdownMenuItem>

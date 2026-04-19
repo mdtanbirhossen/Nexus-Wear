@@ -1,16 +1,22 @@
 "use client"
 import { cn } from "@/lib/utils";
 import { FaSearch } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 export default function Nav_Search() {
+    const router = useRouter();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
         const formData = new FormData(form);
         const search = formData.get("search") as string;
-        console.log(search);
-        form.reset();
+        
+        if (search.trim()) {
+            router.push(`/products?search=${encodeURIComponent(search.trim())}`);
+        } else {
+            router.push('/products');
+        }
     };
 
     return (
