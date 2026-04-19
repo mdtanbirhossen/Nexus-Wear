@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "../ui/input";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { useUploadImagesMutation } from "@/redux/api/imagesUploadApi/imagesUploadApi";
 import { Product } from "@/types/product";
 import { useGetAllColorsQuery } from "@/redux/api/colorApi/colorApi";
-import { usePathname, useRouter } from "next/navigation";
-import { useCreateProductMutation } from "@/redux/api/productsApi/productsApi";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Color } from "@/types/color";
 import { Label } from "../ui/label";
 import { useGetAllsizesQuery } from "@/redux/api/sizeApi/sizeApi";
@@ -22,19 +21,22 @@ import Image from "next/image";
 import Loading from "../shared/Loading";
 import toast from "react-hot-toast";
 
-const ProductForm = () => {
+interface ProductFormProps {
+     initialData?: Product;
+     onSubmit: (data: any) => Promise<void>;
+     isSubmitting: boolean;
+     buttonLabel: string;
+}
+
+const ProductForm = ({ initialData, onSubmit, isSubmitting, buttonLabel }: ProductFormProps) => {
      const [images, setImages] = useState<string[]>([]);
      const [uploadImages] = useUploadImagesMutation();
      const [loading, setLoading] = useState(false)
      const router = useRouter();
-     const pathname = usePathname();
-     const formattedText = pathname.includes("/update") ? "update" : "create";
 
 
 
      /* ---------------------- API Calls ---------------------- */
-     const [createProduct] = useCreateProductMutation();
-
      const { data: colorData } = useGetAllColorsQuery(undefined);
      const { data: sizeData } = useGetAllsizesQuery(undefined);
      const { data: categoryData } = useGetAllCategoriesQuery(undefined);
@@ -88,38 +90,48 @@ const ProductForm = () => {
      const {
           handleSubmit,
           register,
+          control,
           formState: { errors },
           setValue,
           reset,
      } = useForm<Product>();
 
 
+     /* ---------------------- Pre-fill Form ---------------------- */
+     useEffect(() => {
+          if (initialData) {
+               reset({
+                    name: initialData.name,
+                    productCode: initialData.productCode,
+                    description: initialData.description,
+                    price: initialData.price,
+                    availability: initialData.availability,
+                    categoryId: initialData.category?.id || initialData.categoryId,
+                    subcategoryId: initialData.subCategory?.id || initialData.subcategoryId,
+                    colorIds: initialData.colors?.map(c => c.id) || [],
+                    sizeIds: initialData.sizes?.map(s => s.id) || [],
+               });
+               setImages(initialData.images || []);
+          }
+     }, [initialData, reset]);
+
+
      /* ---------------------- Submit Handler ---------------------- */
-     const onSubmit: SubmitHandler<Product> = async (data) => {
+     const handleFormSubmit: SubmitHandler<Product> = async (data) => {
           const payload = {
                name: data.name,
                productCode: data.productCode,
                description: data.description,
-               price: Number(data.price), // ensure it's a number
+               price: Number(data.price),
+               originalPrice: data.originalPrice ? Number(data.originalPrice) : undefined,
                availability: data.availability,
                categoryId: data.categoryId,
                subcategoryId: data.subcategoryId,
                colorIds: data.colorIds || [],
                sizeIds: data.sizeIds || [],
-               images, 
+               images,
           };
-
-
-          try {
-               await createProduct(payload).unwrap();
-               toast.success(`Product Created Successfully`);
-
-               router.push("/management/products");
-          } catch (err) {
-               console.error("Failed to save admin:", err);
-               toast.error("Failed to save admin");
-          }
-          // reset()
+          await onSubmit(payload);
      };
 
 
@@ -142,7 +154,6 @@ const ProductForm = () => {
                          : result?.data || result?.url;
 
                setImages((prev) => [...prev, imageUrl]);
-               reset()
           } catch (error) {
                console.error("Upload failed:", error);
           } finally {
@@ -154,7 +165,7 @@ const ProductForm = () => {
           <Card className="p-6 space-y-4 flex gap-4">
 
                {/* Left Section - Form Inputs */}
-               <form onSubmit={handleSubmit(onSubmit)}>
+               <form onSubmit={handleSubmit(handleFormSubmit)}>
                     <Card className="md:col-span-2 p-4 gap-2 rounded-sm shadow-none ">
 
 
@@ -295,14 +306,18 @@ const ProductForm = () => {
                          {/* Categories */}
                          <div className="space-y-2">
                               <Label className="block text-sm font-medium mb-1">Categories</Label>
-                              <Select
-                                   options={categoryOptions}
-                                   onChange={(selected) => {
-                                        setValue(
-                                             "categoryId", selected?.value as string
-                                        );
-                                   }}
-                                   placeholder="Select colors..."
+                              <Controller
+                                   name="categoryId"
+                                   control={control}
+                                   rules={{ required: "Category is required" }}
+                                   render={({ field }) => (
+                                        <Select
+                                             options={categoryOptions}
+                                             value={categoryOptions.find(opt => opt.value === field.value)}
+                                             onChange={(selected) => field.onChange(selected?.value)}
+                                             placeholder="Select category..."
+                                        />
+                                   )}
                               />
                               {errors.categoryId && (
                                    <p className="text-red-500 text-sm">{errors.categoryId.message}</p>
@@ -313,14 +328,17 @@ const ProductForm = () => {
                          {/* subCategories */}
                          <div className="space-y-2">
                               <Label className="block text-sm font-medium mb-1">Sub Categories</Label>
-                              <Select
-                                   options={subCategoryOptions}
-                                   onChange={(selected) => {
-                                        setValue(
-                                             "subcategoryId", selected?.value as string
-                                        );
-                                   }}
-                                   placeholder="Select colors..."
+                              <Controller
+                                   name="subcategoryId"
+                                   control={control}
+                                   render={({ field }) => (
+                                        <Select
+                                             options={subCategoryOptions}
+                                             value={subCategoryOptions.find(opt => opt.value === field.value)}
+                                             onChange={(selected) => field.onChange(selected?.value)}
+                                             placeholder="Select subcategory..."
+                                        />
+                                   )}
                               />
                               {errors.subcategoryId && (
                                    <p className="text-red-500 text-sm">{errors.subcategoryId.message}</p>
@@ -330,16 +348,18 @@ const ProductForm = () => {
                          {/* Colors */}
                          <div className="space-y-2">
                               <Label className="block text-sm font-medium mb-1">Colors</Label>
-                              <Select
-                                   isMulti
-                                   options={colorOptions}
-                                   onChange={(selected) => {
-                                        setValue(
-                                             "colorIds",
-                                             selected.map(item => item.value)
-                                        );
-                                   }}
-                                   placeholder="Select colors..."
+                              <Controller
+                                   name="colorIds"
+                                   control={control}
+                                   render={({ field }) => (
+                                        <Select
+                                             isMulti
+                                             options={colorOptions}
+                                             value={colorOptions.filter(opt => field.value?.includes(opt.value))}
+                                             onChange={(selected) => field.onChange(selected.map(s => s.value))}
+                                             placeholder="Select colors..."
+                                        />
+                                   )}
                               />
                               {errors.colorIds && (
                                    <p className="text-red-500 text-sm">{errors.colorIds.message}</p>
@@ -349,16 +369,18 @@ const ProductForm = () => {
                          {/* sizes */}
                          <div className="space-y-2">
                               <Label className="block text-sm font-medium mb-1">Sizes</Label>
-                              <Select
-                                   isMulti
-                                   options={sizeOptions}
-                                   onChange={(selected) => {
-                                        setValue(
-                                             "sizeIds",
-                                             selected.map(item => item.value)
-                                        );
-                                   }}
-                                   placeholder="Select sizes..."
+                              <Controller
+                                   name="sizeIds"
+                                   control={control}
+                                   render={({ field }) => (
+                                        <Select
+                                             isMulti
+                                             options={sizeOptions}
+                                             value={sizeOptions.filter(opt => field.value?.includes(opt.value))}
+                                             onChange={(selected) => field.onChange(selected.map(s => s.value))}
+                                             placeholder="Select sizes..."
+                                        />
+                                   )}
                               />
                               {errors.sizeIds && (
                                    <p className="text-red-500 text-sm">{errors.sizeIds.message}</p>
@@ -368,37 +390,33 @@ const ProductForm = () => {
                          {/* availability */}
                          <div className="space-y-2">
                               <Label className="block text-sm font-medium mb-1">Status</Label>
-                              <Select
-                                   options={statusOptions}
-                                   onChange={(selected) => {
-                                        setValue(
-                                             "availability", String(selected?.value)
-                                        );
-                                   }}
-                                   placeholder="Select Status..."
+                              <Controller
+                                   name="availability"
+                                   control={control}
+                                   render={({ field }) => (
+                                        <Select
+                                             options={statusOptions}
+                                             value={statusOptions.find(opt => opt.value === field.value)}
+                                             onChange={(selected) => field.onChange(selected?.value)}
+                                             placeholder="Select Status..."
+                                        />
+                                   )}
                               />
-                              {errors.categoryId && (
-                                   <p className="text-red-500 text-sm">{errors.categoryId.message}</p>
+                              {errors.availability && (
+                                   <p className="text-red-500 text-sm">{errors.availability.message}</p>
                               )}
                          </div>
 
 
                          <Button 
-                              disabled={loading} 
+                              disabled={loading || isSubmitting} 
                               type="submit" 
                               className="mt-6 w-full h-12 bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-lg shadow-secondary/20 transition-all font-bold tracking-wide"
                          >
-                              {loading ? <Loading /> : (formattedText === "update" ? "Update Product" : "Create Product")}
+                              {loading || isSubmitting ? <Loading /> : buttonLabel}
                          </Button>
                     </Card>
                </form>
-
-
-
-
-
-
-
 
           </Card>
      );
