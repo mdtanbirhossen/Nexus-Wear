@@ -6,7 +6,7 @@ const adminPaths = ['/management']
 // paths that require customer authentication
 const customerPaths = ['/dashboard']
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // 1. Admin Protection
