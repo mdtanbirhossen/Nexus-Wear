@@ -33,6 +33,14 @@ export const customerApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["customer"],
     }),
+    updateCustomer: builder.mutation({
+      query: ({ id, data }: { id: string; data: any }) => ({
+        url: `/customer/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "customer", id }],
+    }),
   }),
 });
 
@@ -41,4 +49,5 @@ export const {
   useRegisterCustomerMutation,
   useGetCustomerByIdQuery,
   useGetAllCustomersQuery,
+  useUpdateCustomerMutation,
 } = customerApiSlice;

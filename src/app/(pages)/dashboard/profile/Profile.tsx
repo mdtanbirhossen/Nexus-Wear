@@ -1,7 +1,9 @@
 "use client"
 import useAuthState from "@/hooks/useAuthState"
-import { useGetCustomerByIdQuery } from "@/redux/api/user/user";
+import { useGetCustomerByIdQuery, useUpdateCustomerMutation } from "@/redux/api/user/user";
 import { useState, useEffect } from 'react';
+import { useDispatch } from "react-redux";
+import { setAuth } from "@/redux/features/auth/authSlice";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,10 +32,14 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export default function Profile() {
+  const dispatch = useDispatch();
   const user = useAuthState()
   const id = user?.id;
   const { data: customer, error, isLoading } = useGetCustomerByIdQuery(id || '');
+  const [updateCustomer, { isLoading: isUpdating }] = useUpdateCustomerMutation();
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Initialize React Hook Form
   const form = useForm<ProfileFormValues>({
@@ -67,17 +73,78 @@ export default function Profile() {
     }
   }, [customer, form]);
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Show local preview immediately
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // Automatically upload to backend
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const toastId = toast.loading("Uploading new profile image...");
+        
+        const res = await updateCustomer({ id: id as string, data: formData }).unwrap();
+        
+        if (res.status === "success") {
+          // Sync Redux auth state
+          dispatch(setAuth({
+            token: user?.token || null,
+            id: res.data.id,
+            email: res.data.email,
+            image: res.data.image,
+            expiresAt: user?.expiresAt || null
+          }));
+          
+          toast.success("Profile image updated!", { id: toastId });
+          setSelectedImage(null);
+        }
+      } catch (err) {
+        console.error("Auto-upload error:", err);
+        toast.error("Failed to upload image. Please try again.");
+      }
+    }
+  };
+
   // Handle form submission
-  const onSubmit = (data: ProfileFormValues) => {
-    console.log("Form data:", data);
-    // Here you would typically make an API call to update the user profile
-    // For now, we'll just log to console and show a success message
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsEditing(false);
-      toast.success("Profile updated successfully!");
-    }, 500);
+  const onSubmit = async (data: ProfileFormValues) => {
+    try {
+      const formData = new FormData();
+      // append all fields to formData
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, value);
+        }
+      });
+      
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+
+      const res = await updateCustomer({ id: id as string, data: formData }).unwrap();
+      if (res.status === "success") {
+        // Sync Redux auth state to persist changes across reload
+        dispatch(setAuth({
+          token: user?.token || null,
+          id: res.data.id,
+          email: res.data.email,
+          image: res.data.image,
+          expiresAt: user?.expiresAt || null
+        }));
+        setIsEditing(false);
+        setSelectedImage(null);
+        toast.success("Profile updated successfully!");
+      }
+    } catch (err) {
+      console.error("Profile update error:", err);
+      toast.error("Failed to update profile. Please try again.");
+    }
   };
 
   // Handle cancel editing
@@ -94,6 +161,8 @@ export default function Profile() {
         country: customer.country || "",
       });
     }
+    setSelectedImage(null);
+    setImagePreview(null);
     setIsEditing(false);
   };
 
@@ -168,16 +237,25 @@ export default function Profile() {
               <CardHeader className="items-center">
                 <div className="relative w-full h-48 bg-muted border-4 rounded-2xl border-muted overflow-hidden">
                   <Image
-                    src={customer?.image || "/default-avatar.png"}
+                    src={imagePreview || customer?.image || "/default-avatar.png"}
                     alt={customer?.name || "Customer Image"}
                     fill
                     className="object-cover"
                   />
+                  <Input
+                    type="file"
+                    id="image-upload"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
                   <Button
                     size="icon"
                     className="absolute bottom-4 right-4 rounded-full h-10 w-10 bg-black backdrop-blur-sm"
+                    type="button"
+                    onClick={() => document.getElementById('image-upload')?.click()}
                   >
-                    <Camera className="h-4 w-4" />
+                    <Camera className="h-4 w-4 text-white" />
                   </Button>
                 </div>
 
@@ -335,16 +413,26 @@ export default function Profile() {
                         variant="outline"
                         className="mr-3"
                         onClick={handleCancel}
+                        disabled={isUpdating}
                       >
                         <X className="mr-2 h-4 w-4" />
                         Cancel
                       </Button>
                       <Button
                         type="submit"
-                        disabled={!form.formState.isDirty || !form.formState.isValid}
+                        disabled={(!form.formState.isDirty && !selectedImage) || !form.formState.isValid || isUpdating}
                       >
-                        <Save className="mr-2 h-4 w-4" />
-                        Save Changes
+                        {isUpdating ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Save Changes
+                          </>
+                        )}
                       </Button>
                     </div>
                   )}

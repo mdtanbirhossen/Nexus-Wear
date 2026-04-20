@@ -28,17 +28,21 @@ export default function DashboardLayout({ children }: {
 }) {
   const router = useRouter()
   const { token } = useSelector(selectAuth)
+  const rehydrated = useSelector((state: any) => state.auth?._persist?.rehydrated);
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Wait for Redux rehydration to complete
+    if (rehydrated === false) return;
+
     const storedToken = localStorage.getItem("tokenforauthuser")
 
     if (!token && !storedToken) {
-      router.push("/login")
+      router.replace("/login")
     } else {
       setLoading(false)
     }
-  }, [token, router])
+  }, [token, router, rehydrated])
 
   if (loading) {
     return (
